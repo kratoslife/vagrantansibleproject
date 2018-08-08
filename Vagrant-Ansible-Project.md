@@ -1,0 +1,2 @@
+This page is for project I made for automated creation of VM's on VirtualBox with Vagrant.
+After deploy of VM's named app and monitor shell scripts will download necessary packages and java application with connected zabbix on monitor VM which is looking at it.
