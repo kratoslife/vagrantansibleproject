@@ -5,7 +5,7 @@ sudo yum install -y epel-release
 sudo yum install -y ansible
 sudo yum install -y git
 export PROJECT_FOLDER="/home/vagrant/pliki"
-export GIT_PROJECT_URL="https://bitbucket.org/mpelczarski/vagrantproject/src/master/"
+export GIT_PROJECT_URL="https://github.com/pinkyoov/vagrantansibleproject"
 git clone $GIT_PROJECT_URL $PROJECT_FOLDER
 chown -R vagrant:vagrant $PROJECT_FOLDER
 cp -ar /home/vagrant/pliki/hosts /etc/ansible/hosts
