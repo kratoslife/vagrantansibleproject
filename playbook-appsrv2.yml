@@ -1,0 +1,17 @@
+- hosts: appsrv 
+  sudo: yes
+  remote_user: vagrant
+
+  tasks:
+
+  - name: copy app class
+    shell: cp /vagrant/HomeWork.jar /opt/
+
+  - name: copy run script
+    shell: cp /vagrant/run_app.sh /opt/
+
+  - name: autorun
+    lineinfile: dest=/etc/rc.d/rc.local line="bash /opt/run_app.sh"
+
+  - name: Start Java app
+    shell: bash /opt/run_app.sh

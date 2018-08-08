@@ -1,0 +1,96 @@
+- hosts: appsrv 
+  sudo: yes
+  remote_user: vagrant
+
+  tasks:
+  - hostname: name=appsrv
+
+  - service: name=iptables enabled=no
+  - service: name=iptables state=stopped
+
+  - name: Add Zabbix repository
+    yum: name=http://repo.zabbix.com/zabbix/2.4/rhel/6/x86_64/zabbix-release-2.4-1.el6.noarch.rpm state=present
+
+  - name: Install wget
+    yum: name=wget state=present
+
+  - name: Install Apache HTTP
+    yum: name=httpd state=latest
+    yum: name=mod_ssl state=latest
+
+  - service: name=httpd enabled=yes
+
+  - name: Install Zabbix-Client
+    yum: name=zabbix-agent state=present
+
+  - service: name=zabbix-agent state=started
+
+  - service: name=zabbix-agent enabled=yes 
+
+  - name: Configure zabbix-agent1
+    command: sed -i 's/Server=127.0.0.1/Server=10.10.10.4/g' /etc/zabbix/zabbix_agentd.conf
+
+  - name: Configure zabbix-agent2
+    command: sed -i 's/ServerActive=127.0.0.1/ServerActive=10.10.10.4/g' /etc/zabbix/zabbix_agentd.conf
+
+  - name: Configure zabbix-agent3
+    command: sed -i 's/Hostname=Zabbix\ server/Hostname=appsrv/g' /etc/zabbix/zabbix_agentd.conf
+
+  - name: Check if the userparameter_homework.conf exists.
+    command: /usr/bin/test -e /etc/zabbix/zabbix_agentd.d/userparameter_homework.conf 
+    ignore_errors: True
+    register: zab_exists
+
+  - name: Create userparameter_homework.conf shell
+    file: path=/etc/zabbix/zabbix_agentd.d/userparameter_homework.conf state=touch owner=root group=root mode=0644
+    when: zab_exists.rc != 0
+
+  - name: Update file UserParameter=custom.homework
+    lineinfile: dest=/etc/zabbix/zabbix_agentd.d/userparameter_homework.conf line="UserParameter=custom.homework,curl http://127.0.0.1:5555 2>/dev/null | awk '{ print $2 }'"  
+
+  - name: Restart zabbix agent
+    service: name=zabbix-agent state=restarted
+
+  - name: Install SNMPD
+    yum: name=net-snmp-utils state=present
+    yum: name=net-snmp state=present
+
+  - service: name=snmpd state=started
+
+  - service: name=snmpd enabled=yes
+
+  - name: Install OpenJDK
+    yum: name=java-1.8.0-openjdk-devel state=present
+
+  - name: Check if the app.conf exists.
+    command: /usr/bin/test -e /etc/httpd/conf.d/app.conf
+    ignore_errors: True
+    register: app_exists
+
+  - name: Create app.conf shell
+    file: path=/etc/httpd/conf.d/app.conf state=touch owner=root group=root mode=0644
+    when: app_exists.rc != 0
+
+  - name: Make config app.conf line1
+    lineinfile: dest=/etc/httpd/conf.d/app.conf line="<VirtualHost *:80>"
+
+  - name: Make config app.conf line2
+    lineinfile: dest=/etc/httpd/conf.d/app.conf line="ProxyRequests Off"
+
+  - name: Make config app.conf line3
+    lineinfile: dest=/etc/httpd/conf.d/app.conf line="ProxyPass /app http://127.0.0.1:8888"
+
+  - name: Make config app.conf line4
+    lineinfile: dest=/etc/httpd/conf.d/app.conf line="ProxyPassReverse /app http://127.0.0.1:8888"
+
+  - name: Make config app.conf line5
+    lineinfile: dest=/etc/httpd/conf.d/app.conf line="ProxyPass /mon http://127.0.0.1:5555"
+
+  - name: Make config app.conf line6
+    lineinfile: dest=/etc/httpd/conf.d/app.conf line="ProxyPassReverse /mon http://127.0.0.1:5555"
+
+  - name: Make config app.conf line7
+    lineinfile: dest=/etc/httpd/conf.d/app.conf line="</VirtualHost>"
+
+  - name: Restart Apache HTTP
+    service: name=httpd state=restarted

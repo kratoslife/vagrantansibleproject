@@ -1,0 +1,6 @@
+[deploy]
+deploy ansible_ssh_pass=vagrant ansible_ssh_user=vagrant ansible_ssh_host=10.10.10.2
+[appsrv]
+appsrv ansible_ssh_pass=vagrant ansible_ssh_user=vagrant ansible_ssh_host=10.10.10.3
+[monsrv]
+monsrv ansible_ssh_pass=vagrant ansible_ssh_user=vagrant ansible_ssh_host=10.10.10.4
