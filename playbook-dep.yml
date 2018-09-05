@@ -1,0 +1,17 @@
+- hosts: app
+	sudo: yes
+	remote_user: vagrant
+	
+	tasks:
+	
+	- name: Download JAR file
+		get_url: url=https://bitbucket.org/mpelczarski/vagrantproject/raw/8df1a9f63b9407ffa6d0eb0ede43219a25e05f12/HomeWork.jar dest=/opt/HomeWork.jar
+		
+	- name: Download Run Script
+		get_url: url=https://bitbucket.org/mpelczarski/vagrantproject/raw/cc99b94eafbeebef905d74e970f3ab7400d120f7/run_java.sh dest=/opt/run_java.sh
+		
+	- name: Autorun
+		lineinfile: dest=/etc/rc.d/rc.local line="bash /opt/run_java.sh"
+		
+	- name: Start Java App
+		shell: bash /opt/run_java.sh

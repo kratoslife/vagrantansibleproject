@@ -1,8 +1,0 @@
-- hosts: deploy 
-  sudo: yes
-  remote_user: vagrant
-
-  tasks:
-   
-  - name: edit hosts
-    shell: cp -rf /vagrant/hosts /etc/ansible/hosts
